@@ -94,28 +94,47 @@
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Total balance</p>
                 <p class="font-mono mt-2 text-2xl font-semibold text-slate-900">₦{{ number_format($totalBalance ?? 250000) }}</p>
                 <p class="mt-1 text-xs text-emerald-600">+4.2% vs last month</p>
+                <div class="mt-4 text-right">
+                    <a href="#" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">See more</a>
+                </div>
             </div>
             <div class="receipt-card p-5">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Spent this month</p>
                 <p class="font-mono mt-2 text-2xl font-semibold text-slate-900">₦{{ number_format($monthSpend ?? 82500) }}</p>
                 <p class="mt-1 text-xs text-slate-500">Across {{ $activeBudgets ?? 3 }} active budgets</p>
+                <div class="mt-4 text-right">
+                    <a href="#" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">See more</a>
+                </div>
             </div>
             <div class="receipt-card p-5">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Pending bills</p>
                 <p class="font-mono mt-2 text-2xl font-semibold text-slate-900">₦{{ number_format($pendingBillsTotal ?? 20000) }}</p>
                 <p class="mt-1 text-xs text-amber-600">2 people yet to pay</p>
+                <div class="mt-4 text-right">
+                    <a href="#" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">See more</a>
+                </div>
             </div>
             <div class="receipt-card p-5">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Active groups</p>
                 <p class="font-mono mt-2 text-2xl font-semibold text-slate-900">{{ $groups->count() }}</p>
                 <p class="mt-1 text-xs text-slate-500">{{ $groupsNeedingAttention }} still collecting this cycle</p>
+                <div class="mt-4 text-right">
+                    <a href="#" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">See more</a>
+                </div>
             </div>
         </div>
 
         {{-- Summary: rollup across all budgets, bills, and groups --}}
         <div class="receipt-card p-6">
-            <h3 class="font-display text-base font-semibold text-slate-900">Summary</h3>
-            <p class="mt-0.5 text-sm text-slate-500">A rollup across all your budgets, bills, and groups.</p>
+            <div class="flex items-start justify-between">
+                <div>
+                    <h3 class="font-display text-base font-semibold text-slate-900">Summary</h3>
+                    <p class="mt-0.5 text-sm text-slate-500">A rollup across all your budgets, bills, and groups.</p>
+                </div>
+                <div class="ms-4 shrink-0">
+                    <a href="#" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">View details</a>
+                </div>
+            </div>
 
             <div class="mt-5 grid gap-6 divide-y divide-slate-100 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
                 {{-- Budgets summary --}}
@@ -154,9 +173,14 @@
         <div class="grid gap-6 {{ $attentionItems->isNotEmpty() ? 'lg:grid-cols-2' : '' }}">
             @if ($attentionItems->isNotEmpty())
                 <div class="receipt-card p-6">
-                    <div class="flex items-center gap-2">
-                        <span class="h-2 w-2 rounded-full bg-rose-500"></span>
-                        <h3 class="font-display text-base font-semibold text-slate-900">Needs attention</h3>
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-rose-500"></span>
+                            <h3 class="font-display text-base font-semibold text-slate-900">Needs attention</h3>
+                        </div>
+                        <div class="ms-4 shrink-0">
+                            <a href="#" class="text-sm font-medium text-rose-600 hover:text-rose-700">See all</a>
+                        </div>
                     </div>
                     <div class="mt-4 max-h-56 space-y-1 overflow-y-auto pr-1">
                         @foreach ($attentionItems as $item)
@@ -170,7 +194,12 @@
             @endif
 
             <div class="receipt-card p-6">
-                <h3 class="font-display text-base font-semibold text-slate-900">Upcoming</h3>
+                <div class="flex items-start justify-between">
+                    <h3 class="font-display text-base font-semibold text-slate-900">Upcoming</h3>
+                    <div class="ms-4 shrink-0">
+                        <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-700">See all</a>
+                    </div>
+                </div>
                 <div class="mt-4 max-h-56 space-y-1 overflow-y-auto pr-1">
                     @forelse ($upcomingEvents as $event)
                         @php
