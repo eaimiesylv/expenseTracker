@@ -92,6 +92,11 @@
                         Record savings
                     </a>
 
+                     <a href="{{ route('notifications') }}" class="side-link {{ request()->routeIs('notifications') ? 'active' : '' }}">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-2 0-4 1-5 3-1 2 0 4 2 5 2 1 3 3 3 5 0 2 2 3 4 3s4-1 4-3c0-2-1-4-3-5-2-1-3-3-3-5 0-1-1-3-2-3z"/></svg>
+                        Notifications
+                    </a>
+
                     <div class="my-3 border-t border-slate-100"></div>
 
                     <a href="{{ route('settings') }}" class="side-link {{ request()->routeIs('settings') ? 'active' : '' }}">

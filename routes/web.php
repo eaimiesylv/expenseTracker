@@ -37,4 +37,8 @@ Route::view('settings', 'settings')
     ->middleware(['auth', 'verified'])
     ->name('settings');
 
+Route::view('notifications', 'notification')
+    ->middleware(['auth', 'verified'])
+    ->name('notifications');
+
 require __DIR__.'/auth.php';
