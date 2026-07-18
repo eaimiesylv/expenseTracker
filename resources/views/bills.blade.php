@@ -168,19 +168,6 @@
             'Three bills are due this week.',
         ];
 
-        $trendLabels = ['Jul 10', 'Jul 11', 'Jul 12', 'Jul 13', 'Jul 14', 'Jul 15', 'Jul 16'];
-        $trendData = [20000, 45000, 60000, 90000, 130000, 150000, 195000];
-        $statusLabels = ['Paid', 'Partial', 'Pending', 'Overdue'];
-        $statusData = [
-            $bills->where('status', 'Paid')->count(),
-            $bills->where('status', 'Partial')->count(),
-            $bills->whereIn('status', ['Active', 'Draft'])->count(),
-            $bills->where('status', 'Overdue')->count(),
-        ];
-        $statusColors = ['#10B981', '#F59E0B', '#2563EB', '#EF4444'];
-        $categoryBarLabels = $bills->groupBy('category')->keys();
-        $categoryBarData = $bills->groupBy('category')->map(fn ($g) => $g->sum('amount'))->values();
-
         $toneDot = ['blue' => 'bg-blue-500', 'amber' => 'bg-amber-500', 'red' => 'bg-rose-500', 'green' => 'bg-emerald-500'];
         $statusBadge = [
             'Draft' => 'bg-slate-100 text-slate-600', 'Active' => 'bg-blue-50 text-blue-700',
@@ -379,38 +366,6 @@
                     </div>
                 </div>
             </template>
-
-            {{-- Analytics --}}
-            <div class="grid gap-6 lg:grid-cols-3">
-                <div class="b-card p-5 lg:col-span-2">
-                    <h3 class="font-display text-sm font-semibold text-slate-900">Bill Collection Trend</h3>
-                    <div class="mt-4 h-56"><canvas id="collectionTrendChart"></canvas></div>
-                </div>
-                <div class="b-card p-5">
-                    <h3 class="font-display text-sm font-semibold text-slate-900">Collection Status</h3>
-                    <div class="mt-4 h-56"><canvas id="statusChart"></canvas></div>
-                </div>
-            </div>
-            <div class="grid gap-6 lg:grid-cols-3">
-                <div class="b-card p-5 lg:col-span-2">
-                    <h3 class="font-display text-sm font-semibold text-slate-900">Bills by Category</h3>
-                    <div class="mt-4 h-52"><canvas id="categoryBarChart"></canvas></div>
-                </div>
-                <div class="b-card p-5">
-                    <h3 class="font-display text-sm font-semibold text-slate-900">Needs Attention</h3>
-                    <div class="mt-3 space-y-1">
-                        @foreach ($attentionItems as $item)
-                            <div class="flex items-start gap-2.5 rounded-lg px-2 py-2 hover:bg-slate-50">
-                                <span class="mt-0.5 status-dot {{ $toneDot[$item->tone] ?? 'bg-blue-500' }}"></span>
-                                <div class="text-sm">
-                                    <p class="font-medium text-slate-800">{{ $item->label }}</p>
-                                    <p class="text-xs text-slate-500">{{ $item->meta }}</p>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
 
             {{-- Bill list + insights --}}
             <div class="grid gap-6 xl:grid-cols-[1fr_320px]">
@@ -885,8 +840,6 @@
         </template>
     </div>
 
-    {{-- Chart.js via CDN for quick use — for production, `npm i chart.js` and import through resources/js/app.js instead --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.store('billModal', { open: false, mode: 'create', data: null });
@@ -903,7 +856,7 @@
                 sortLabels: { newest: 'Newest', oldest: 'Oldest', amount_desc: 'Highest Amount', amount_asc: 'Lowest Amount', due_date: 'Due Date' },
 
                 init() {
-                    setTimeout(() => { this.loading = false; this.$nextTick(() => this.renderCharts()); }, 350);
+                    setTimeout(() => { this.loading = false; }, 350);
                 },
 
                 applyPreset(label) {
@@ -940,33 +893,6 @@
                 noResults() {
                     const cards = this.$el.querySelectorAll('[data-name]');
                     return cards.length > 0 && Array.from(cards).every(el => !this.isVisible(el));
-                },
-
-                renderCharts() {
-                    const trendCtx = document.getElementById('collectionTrendChart');
-                    if (trendCtx) {
-                        new Chart(trendCtx, {
-                            type: 'line',
-                            data: { labels: @json($trendLabels), datasets: [{ data: @json($trendData), borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)', fill: true, tension: 0.35, pointRadius: 3 }] },
-                            options: { plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => '₦' + (v/1000) + 'k' } } } },
-                        });
-                    }
-                    const statusCtx = document.getElementById('statusChart');
-                    if (statusCtx) {
-                        new Chart(statusCtx, {
-                            type: 'doughnut',
-                            data: { labels: @json($statusLabels), datasets: [{ data: @json($statusData), backgroundColor: @json($statusColors), borderWidth: 0 }] },
-                            options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }, cutout: '65%' },
-                        });
-                    }
-                    const barCtx = document.getElementById('categoryBarChart');
-                    if (barCtx) {
-                        new Chart(barCtx, {
-                            type: 'bar',
-                            data: { labels: @json($categoryBarLabels), datasets: [{ data: @json($categoryBarData), backgroundColor: '#2563EB', borderRadius: 6, maxBarThickness: 28 }] },
-                            options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: v => '₦' + (v/1000) + 'k' } } } },
-                        });
-                    }
                 },
             }));
 

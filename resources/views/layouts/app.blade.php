@@ -70,6 +70,11 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V10.5Z"/></svg>
                         Dashboard
                     </a>
+                    <a href="{{ route('analytics') }}" class="side-link {{ request()->routeIs('analytics') ? 'active' : '' }}">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19V10"/><path d="M12 19V5"/><path d="M19 19v-7"/><path d="M3 19h18"/></svg>
+                        Analytics
+                    </a>
+
                     <a href="{{ route('budgets') }}" class="side-link {{ request()->routeIs('budgets') ? 'active' : '' }}">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v0"/></svg>
                         Budgets
@@ -93,10 +98,10 @@
                     </a>
 
                      <a href="{{ route('notifications') }}" class="side-link {{ request()->routeIs('notifications') ? 'active' : '' }}">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-2 0-4 1-5 3-1 2 0 4 2 5 2 1 3 3 3 5 0 2 2 3 4 3s4-1 4-3c0-2-1-4-3-5-2-1-3-3-3-5 0-1-1-3-2-3z"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 1 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6Z"/><path d="M10 18a2 2 0 0 0 4 0"/></svg>
                         Notifications
                     </a>
-
+                    
                     <div class="my-3 border-t border-slate-100"></div>
 
                     <a href="{{ route('settings') }}" class="side-link {{ request()->routeIs('settings') ? 'active' : '' }}">

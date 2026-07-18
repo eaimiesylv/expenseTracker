@@ -147,14 +147,6 @@
             (object)['day' => 'Monday', 'text' => 'John Edited Fuel Expense'],
         ]);
 
-        $trendLabels = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
-        $trendData = [210000, 245000, 198000, 260000, 230000, 320000];
-        $categoryLabels = $categoriesList;
-        $categoryData = [45, 25, 10, 8, 7, 5];
-        $categoryColors = ['#2563EB', '#60A5FA', '#F97316', '#10B981', '#A855F7', '#94A3B8'];
-        $budgetSpendLabels = collect($budgetsList)->pluck('name');
-        $budgetSpendData = collect($budgetsList)->pluck('spent');
-
         $toneClasses = [
             'blue' => ['bg' => 'bg-blue-50', 'text' => 'text-blue-600'],
             'orange' => ['bg' => 'bg-orange-50', 'text' => 'text-orange-600'],
@@ -358,40 +350,6 @@
                     </div>
                 </div>
             </template>
-
-            {{-- Analytics --}}
-            <div class="grid gap-6 lg:grid-cols-3">
-                <div class="b-card p-5 lg:col-span-2">
-                    <h3 class="font-display text-sm font-semibold text-slate-900">Monthly Spending Trend</h3>
-                    <div class="mt-4 h-56"><canvas id="trendChart"></canvas></div>
-                </div>
-                <div class="b-card p-5">
-                    <h3 class="font-display text-sm font-semibold text-slate-900">Expense Breakdown</h3>
-                    <div class="mt-4 h-56"><canvas id="categoryChart"></canvas></div>
-                </div>
-            </div>
-            <div class="grid gap-6 lg:grid-cols-3">
-                <div class="b-card p-5 lg:col-span-2">
-                    <h3 class="font-display text-sm font-semibold text-slate-900">Spending by Budget</h3>
-                    <div class="mt-4 h-52"><canvas id="budgetBarChart"></canvas></div>
-                </div>
-
-                {{-- Needs attention --}}
-                <div class="b-card p-5">
-                    <h3 class="font-display text-sm font-semibold text-slate-900">Needs Attention</h3>
-                    <div class="mt-3 space-y-1">
-                        @foreach ($attentionItems as $item)
-                            <div class="flex items-start gap-2.5 rounded-lg px-2 py-2 hover:bg-slate-50">
-                                <span class="mt-0.5 status-dot {{ $item->tone === 'red' ? 'bg-rose-500' : ($item->tone === 'orange' ? 'bg-orange-500' : 'bg-blue-500') }}"></span>
-                                <div class="text-sm">
-                                    <p class="font-medium text-slate-800">{{ $item->label }}</p>
-                                    <p class="text-xs text-slate-500">{{ $item->meta }}</p>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
 
             {{-- Expense list + side column --}}
             <div class="grid gap-6 xl:grid-cols-[1fr_320px]">
@@ -756,8 +714,6 @@
         </template>
     </div>
 
-    {{-- Chart.js via CDN for quick use — for production, `npm i chart.js` and import it through resources/js/app.js instead --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.store('expenseModal', { open: false, mode: 'create', data: null });
@@ -769,7 +725,7 @@
                 sortLabels: { newest: 'Newest', oldest: 'Oldest', amount_desc: 'Highest Amount', amount_asc: 'Lowest Amount' },
 
                 init() {
-                    setTimeout(() => { this.loading = false; this.$nextTick(() => this.renderCharts()); }, 350);
+                    setTimeout(() => { this.loading = false; }, 350);
                 },
 
                 isVisible(el) {
@@ -789,48 +745,6 @@
                 noResults() {
                     const grid = this.$el.querySelectorAll('[data-name]');
                     return grid.length > 0 && Array.from(grid).every(el => !this.isVisible(el));
-                },
-
-                renderCharts() {
-                    const trendCtx = document.getElementById('trendChart');
-                    if (trendCtx) {
-                        new Chart(trendCtx, {
-                            type: 'line',
-                            data: {
-                                labels: @json($trendLabels),
-                                datasets: [{
-                                    data: @json($trendData),
-                                    borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)',
-                                    fill: true, tension: 0.35, pointRadius: 3,
-                                }],
-                            },
-                            options: { plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => '₦' + (v/1000) + 'k' } } } },
-                        });
-                    }
-
-                    const catCtx = document.getElementById('categoryChart');
-                    if (catCtx) {
-                        new Chart(catCtx, {
-                            type: 'doughnut',
-                            data: {
-                                labels: @json($categoryLabels),
-                                datasets: [{ data: @json($categoryData), backgroundColor: @json($categoryColors), borderWidth: 0 }],
-                            },
-                            options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }, cutout: '65%' },
-                        });
-                    }
-
-                    const barCtx = document.getElementById('budgetBarChart');
-                    if (barCtx) {
-                        new Chart(barCtx, {
-                            type: 'bar',
-                            data: {
-                                labels: @json($budgetSpendLabels),
-                                datasets: [{ data: @json($budgetSpendData), backgroundColor: '#2563EB', borderRadius: 6, maxBarThickness: 28 }],
-                            },
-                            options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: v => '₦' + (v/1000) + 'k' } } } },
-                        });
-                    }
                 },
             }));
 
