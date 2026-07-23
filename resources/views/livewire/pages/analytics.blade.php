@@ -1,41 +1,15 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-4" x-data="{}">
-            <div>
-                <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">Analytics</h2>
-                <p class="mt-0.5 text-sm text-slate-500">One view across your budgets, expenses, bills, groups and savings.</p>
-            </div>
-            <button type="button" @click="$store.exportModal.open = true"
-                    class="hidden items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700 sm:inline-flex">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-                Export Report
-            </button>
-        </div>
-    </x-slot>
+<?php
 
-    <style>
-        [x-cloak] { display: none !important; }
-        .b-card{ background:#fff; border:1px solid #E5E9F0; border-radius:20px; box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 10px 28px -14px rgba(15,23,42,0.10); }
-        .b-progress-track{ height:8px; border-radius:9999px; background:#EEF1F6; }
-        .b-progress-fill{ height:8px; border-radius:9999px; transition: width .4s ease; }
-        .badge{ display:inline-flex; align-items:center; border-radius:9999px; padding:.2rem .6rem; font-size:.7rem; font-weight:600; }
-        .status-dot{ height:.5rem; width:.5rem; border-radius:9999px; display:inline-block; }
-        .segbtn{ border-radius:.75rem; border:1px solid #E2E8F0; padding:.5rem .75rem; font-size:.75rem; font-weight:600; color:#64748B; }
-        .segbtn.active{ border-color:#2563EB; background:#EFF6FF; color:#1D4ED8; }
-        .field-label{ font-size:.75rem; font-weight:600; color:#475569; }
-        .field-input{ margin-top:.375rem; width:100%; border-radius:.75rem; border:1px solid #E2E8F0; padding:.625rem .875rem; font-size:.875rem; }
-        .field-input:focus{ outline:none; border-color:#60A5FA; box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
-        .skeleton{ background: linear-gradient(90deg,#EEF1F6 25%,#F6F8FA 37%,#EEF1F6 63%); background-size:400% 100%; animation: shimmer 1.4s ease infinite; border-radius:16px; }
-        @keyframes shimmer{ 0%{ background-position:100% 50%;} 100%{ background-position:0 50%;} }
-    </style>
+use Livewire\Volt\Component;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
-    {{-- ============================================================
-         Fallback sample data — replace with a real Livewire component
-         (e.g. App\Livewire\Analytics\Index) that aggregates across
-         your Budgets, Expenses, Bills, Groups and Savings tables for
-         the selected date range / scope.
-    ============================================================ --}}
-    @php
+new 
+#[Layout('layouts.app')]
+#[Title('Analytics')]
+class extends Component {
+    public function with(): array
+    {
         $groupsList = ['Family', 'Church cooperative', 'Office savings'];
 
         $months = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
@@ -91,7 +65,46 @@
 
         $toneClasses = ['blue' => ['bg' => 'bg-blue-50', 'text' => 'text-blue-600'], 'amber' => ['bg' => 'bg-amber-50', 'text' => 'text-amber-600'], 'red' => ['bg' => 'bg-rose-50', 'text' => 'text-rose-600']];
         $toneDot = ['blue' => 'bg-blue-500', 'amber' => 'bg-amber-500', 'red' => 'bg-rose-500'];
-    @endphp
+
+        return compact(
+            'groupsList', 'months', 'spendTrend', 'savingsTrend', 'budgetUtilization',
+            'categoryLabels', 'categoryData', 'categoryColors', 'billsCollected',
+            'billsOutstanding', 'groupSpend', 'summaryCards', 'topCategories',
+            'attentionItems', 'insights', 'toneClasses', 'toneDot'
+        );
+    }
+}; ?>
+
+<div>
+    <x-slot name="header">
+        <div class="flex flex-wrap items-center justify-between gap-4" x-data="{}">
+            <div>
+                <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">Analytics</h2>
+                <p class="mt-0.5 text-sm text-slate-500">One view across your budgets, expenses, bills, groups and savings.</p>
+            </div>
+            <button type="button" @click="$store.exportModal.open = true"
+                    class="hidden items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700 sm:inline-flex">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                Export Report
+            </button>
+        </div>
+    </x-slot>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        .b-card{ background:#fff; border:1px solid #E5E9F0; border-radius:20px; box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 10px 28px -14px rgba(15,23,42,0.10); }
+        .b-progress-track{ height:8px; border-radius:9999px; background:#EEF1F6; }
+        .b-progress-fill{ height:8px; border-radius:9999px; transition: width .4s ease; }
+        .badge{ display:inline-flex; align-items:center; border-radius:9999px; padding:.2rem .6rem; font-size:.7rem; font-weight:600; }
+        .status-dot{ height:.5rem; width:.5rem; border-radius:9999px; display:inline-block; }
+        .segbtn{ border-radius:.75rem; border:1px solid #E2E8F0; padding:.5rem .75rem; font-size:.75rem; font-weight:600; color:#64748B; }
+        .segbtn.active{ border-color:#2563EB; background:#EFF6FF; color:#1D4ED8; }
+        .field-label{ font-size:.75rem; font-weight:600; color:#475569; }
+        .field-input{ margin-top:.375rem; width:100%; border-radius:.75rem; border:1px solid #E2E8F0; padding:.625rem .875rem; font-size:.875rem; }
+        .field-input:focus{ outline:none; border-color:#60A5FA; box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
+        .skeleton{ background: linear-gradient(90deg,#EEF1F6 25%,#F6F8FA 37%,#EEF1F6 63%); background-size:400% 100%; animation: shimmer 1.4s ease infinite; border-radius:16px; }
+        @keyframes shimmer{ 0%{ background-position:100% 50%;} 100%{ background-position:0 50%;} }
+    </style>
 
     <div x-data="analyticsPage()" x-init="init()" x-cloak class="relative mx-auto max-w-7xl space-y-8 pb-16">
 
@@ -302,7 +315,6 @@
         </template>
     </div>
 
-    {{-- Chart.js via CDN for quick use — for production, `npm i chart.js` and import through resources/js/app.js instead --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script>
         document.addEventListener('alpine:init', () => {
@@ -385,11 +397,9 @@
 
                 download() {
                     this.downloading = true;
-                    // Replace with a real call, e.g.:
-                    // window.location = `/analytics/export?format=${this.format}&range=${this.range}&sections=${this.included.join(',')}`
                     setTimeout(() => { this.downloading = false; this.$store.exportModal.open = false; }, 700);
                 },
             }));
         });
     </script>
-</x-app-layout>
+</div>

@@ -1,19 +1,16 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">
-            {{ __('Dashboard') }}
-        </h2>
-        <p class="mt-0.5 text-sm text-slate-500">{{ __('Here\'s what\'s happening with your money.') }}</p>
-    </x-slot>
+<?php
 
-    {{-- Assumes each of these is passed from a controller / Livewire component:
-         $totalBalance, $monthSpend, $activeBudgets, $pendingBillsTotal,
-         $budgets (collection), $recentExpenses (collection),
-         $bills (collection), $groups (collection) --}}
+use Livewire\Volt\Component;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
-    @php
-        // Fallback sample data so the page renders standalone — replace with real queries.
-        $budgets = $budgets ?? collect([
+new 
+#[Layout('layouts.app')]
+#[Title('Dashboard')]
+class extends Component {
+    public function with(): array
+    {
+        $budgets = collect([
             (object)['name' => 'Food', 'spent' => 45000, 'limit' => 60000, 'type' => 'Personal'],
             (object)['name' => 'Transport', 'spent' => 18000, 'limit' => 25000, 'type' => 'Personal'],
             (object)['name' => 'Family utilities', 'spent' => 32000, 'limit' => 50000, 'type' => 'Group'],
@@ -21,7 +18,7 @@
             (object)['name' => 'Data & subscriptions', 'spent' => 21000, 'limit' => 15000, 'type' => 'Personal'],
         ]);
 
-        $bills = $bills ?? collect([
+        $bills = collect([
             (object)['title' => 'Dinner', 'total' => 80000, 'participants' => [
                 (object)['name' => 'Ada', 'status' => 'paid'],
                 (object)['name' => 'Bayo', 'status' => 'pending'],
@@ -37,11 +34,21 @@
             ]],
         ]);
 
-        $groups = $groups ?? collect([
+        $groups = collect([
             (object)['name' => 'Family', 'members' => 15, 'paid' => 12],
             (object)['name' => 'Church cooperative', 'members' => 40, 'paid' => 40],
             (object)['name' => 'Office savings', 'members' => 8, 'paid' => 3],
         ]);
+
+        $recentExpenses = collect([
+            (object)['item' => 'Rice (bag)', 'category' => 'Food', 'budget' => 'Food', 'amount' => 32000, 'date' => 'Jul 12'],
+            (object)['item' => 'Fuel', 'category' => 'Transport', 'budget' => 'Transport', 'amount' => 8000, 'date' => 'Jul 11'],
+            (object)['item' => 'NEPA bill', 'category' => 'Utilities', 'budget' => 'Family utilities', 'amount' => 15000, 'date' => 'Jul 9'],
+        ]);
+
+        $totalBalance = 250000;
+        $monthSpend = 82500;
+        $activeBudgets = 3;
 
         $budgetsOverLimit = $budgets->filter(fn ($b) => $b->spent > $b->limit)->count();
         $budgetsTotalLimit = $budgets->sum('limit');
@@ -56,7 +63,6 @@
 
         $groupsNeedingAttention = $groups->filter(fn ($g) => $g->paid < $g->members)->count();
 
-        // Needs attention: pull the specific items behind the aggregate counts above.
         $attentionItems = collect()
             ->merge($budgets->filter(fn ($b) => $b->spent > $b->limit)->map(fn ($b) => (object)[
                 'label' => "{$b->name} is over budget",
@@ -77,14 +83,40 @@
                 'href' => '#',
             ]));
 
-        // Upcoming: recurring budget renewals, bill due dates, group cycle deadlines.
-        $upcomingEvents = $upcomingEvents ?? collect([
+        $upcomingEvents = collect([
             (object)['title' => 'Family utilities budget renews', 'date' => 'Jul 20', 'type' => 'budget'],
             (object)['title' => '"Office lunch" bill due', 'date' => 'Jul 18', 'type' => 'bill'],
             (object)['title' => 'Family group contribution due', 'date' => 'Jul 22', 'type' => 'group'],
             (object)['title' => 'Church cooperative cycle closes', 'date' => 'Jul 31', 'type' => 'group'],
         ])->sortBy(fn ($e) => \Carbon\Carbon::parse($e->date . ' ' . now()->year))->values();
-    @endphp
+
+        return compact(
+            'budgets',
+            'bills',
+            'groups',
+            'recentExpenses',
+            'totalBalance',
+            'monthSpend',
+            'activeBudgets',
+            'budgetsOverLimit',
+            'budgetsTotalLimit',
+            'budgetsTotalSpent',
+            'billsPendingCount',
+            'billsPendingTotal',
+            'groupsNeedingAttention',
+            'attentionItems',
+            'upcomingEvents'
+        );
+    }
+}; ?>
+
+<div>
+    <x-slot name="header">
+        <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">
+            {{ __('Dashboard') }}
+        </h2>
+        <p class="mt-0.5 text-sm text-slate-500">{{ __('Here\'s what\'s happening with your money.') }}</p>
+    </x-slot>
 
     <div class="mx-auto max-w-7xl space-y-8">
 
@@ -92,7 +124,7 @@
         <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             <div class="receipt-card p-5">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Total balance</p>
-                <p class="font-mono mt-2 text-2xl font-semibold text-slate-900">₦{{ number_format($totalBalance ?? 250000) }}</p>
+                <p class="font-mono mt-2 text-2xl font-semibold text-slate-900">₦{{ number_format($totalBalance) }}</p>
                 <p class="mt-1 text-xs text-emerald-600">+4.2% vs last month</p>
                 <div class="mt-4 text-right">
                     <a href="#" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">See more</a>
@@ -100,15 +132,15 @@
             </div>
             <div class="receipt-card p-5">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Spent this month</p>
-                <p class="font-mono mt-2 text-2xl font-semibold text-slate-900">₦{{ number_format($monthSpend ?? 82500) }}</p>
-                <p class="mt-1 text-xs text-slate-500">Across {{ $activeBudgets ?? 3 }} active budgets</p>
+                <p class="font-mono mt-2 text-2xl font-semibold text-slate-900">₦{{ number_format($monthSpend) }}</p>
+                <p class="mt-1 text-xs text-slate-500">Across {{ $activeBudgets }} active budgets</p>
                 <div class="mt-4 text-right">
                     <a href="#" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">See more</a>
                 </div>
             </div>
             <div class="receipt-card p-5">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Pending bills</p>
-                <p class="font-mono mt-2 text-2xl font-semibold text-slate-900">₦{{ number_format($pendingBillsTotal ?? 20000) }}</p>
+                <p class="font-mono mt-2 text-2xl font-semibold text-slate-900">₦{{ number_format($billsPendingTotal) }}</p>
                 <p class="mt-1 text-xs text-amber-600">2 people yet to pay</p>
                 <div class="mt-4 text-right">
                     <a href="#" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">See more</a>
@@ -169,7 +201,7 @@
             </div>
         </div>
 
-        {{-- Needs attention (only shows if there's something to flag) + Upcoming --}}
+        {{-- Needs attention + Upcoming --}}
         <div class="grid gap-6 {{ $attentionItems->isNotEmpty() ? 'lg:grid-cols-2' : '' }}">
             @if ($attentionItems->isNotEmpty())
                 <div class="receipt-card p-6">
@@ -301,11 +333,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            @forelse (($recentExpenses ?? collect([
-                                (object)['item' => 'Rice (bag)', 'category' => 'Food', 'budget' => 'Food', 'amount' => 32000, 'date' => 'Jul 12'],
-                                (object)['item' => 'Fuel', 'category' => 'Transport', 'budget' => 'Transport', 'amount' => 8000, 'date' => 'Jul 11'],
-                                (object)['item' => 'NEPA bill', 'category' => 'Utilities', 'budget' => 'Family utilities', 'amount' => 15000, 'date' => 'Jul 9'],
-                            ])) as $expense)
+                            @forelse ($recentExpenses as $expense)
                                 <tr>
                                     <td class="py-2.5">
                                         <p class="font-medium text-slate-800">{{ $expense->item }}</p>
@@ -357,4 +385,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</div>

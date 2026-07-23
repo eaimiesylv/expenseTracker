@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Livewire\Volt\Volt;
 
 Route::view('/', 'welcome');
 
-Route::view('dashboard', 'dashboard')
+Volt::route('dashboard', 'pages.dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -13,23 +14,23 @@ Route::view('profile', 'profile')
     ->name('profile');
 
 // App pages
-Route::view('budgets', 'budgets')
+Volt::route('budgets', 'pages.budgets')
     ->middleware(['auth', 'verified'])
     ->name('budgets');
 
-Route::view('expenses', 'expenses')
+Volt::route('expenses', 'pages.expenses')
     ->middleware(['auth', 'verified'])
     ->name('expenses');
 
-Route::view('bills', 'bills')
+Volt::route('bills', 'pages.bills')
     ->middleware(['auth', 'verified'])
     ->name('bills');
 
-Route::view('groups', 'groups')
+Volt::route('groups', 'pages.groups')
     ->middleware(['auth', 'verified'])
     ->name('groups');
 
-Route::view('savings', 'savings')
+Volt::route('savings', 'pages.savings')
     ->middleware(['auth', 'verified'])
     ->name('savings');
 
@@ -37,11 +38,11 @@ Route::view('settings', 'settings')
     ->middleware(['auth', 'verified'])
     ->name('settings');
 
-Route::view('notifications', 'notification')
+Volt::route('notifications', 'pages.notifications')
     ->middleware(['auth', 'verified'])
     ->name('notifications');
 
-Route::view('analytics', 'analytics')
+Volt::route('analytics', 'pages.analytics')
     ->middleware(['auth', 'verified'])
     ->name('analytics');
 

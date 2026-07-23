@@ -1,44 +1,16 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-4" x-data="{}">
-            <div>
-                <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">Notifications</h2>
-                <p class="mt-0.5 text-sm text-slate-500">Stay updated with your budgets, expenses, groups and bills.</p>
-            </div>
-            <div class="hidden items-center gap-2 sm:flex">
-                <button type="button" @click="markAllRead()" class="rounded-full border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:border-slate-300">Mark All Read</button>
-                <button type="button" @click="$store.settingsDrawer.open = true" class="rounded-full bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 hover:bg-blue-700">Notification Settings</button>
-            </div>
-        </div>
-    </x-slot>
+<?php
 
-    <style>
-        [x-cloak] { display: none !important; }
-        .b-card{ background:#fff; border:1px solid #E5E9F0; border-radius:20px; box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 10px 28px -14px rgba(15,23,42,0.10); }
-        .badge{ display:inline-flex; align-items:center; border-radius:9999px; padding:.2rem .6rem; font-size:.7rem; font-weight:600; }
-        .status-dot{ height:.5rem; width:.5rem; border-radius:9999px; display:inline-block; }
-        .field-label{ font-size:.75rem; font-weight:600; color:#475569; }
-        .field-input{ margin-top:.375rem; width:100%; border-radius:.75rem; border:1px solid #E2E8F0; padding:.625rem .875rem; font-size:.875rem; }
-        .field-input:focus{ outline:none; border-color:#60A5FA; box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
-        .segbtn{ border-radius:.75rem; border:1px solid #E2E8F0; padding:.5rem .75rem; font-size:.75rem; font-weight:600; color:#64748B; }
-        .segbtn.active{ border-color:#2563EB; background:#EFF6FF; color:#1D4ED8; }
-        .toggle{ position:relative; width:2.5rem; height:1.4rem; border-radius:9999px; background:#E2E8F0; transition:background .15s ease; cursor:pointer; flex-shrink:0; }
-        .toggle.on{ background:#2563EB; }
-        .toggle span{ position:absolute; top:2px; left:2px; height:1.1rem; width:1.1rem; border-radius:9999px; background:#fff; transition:transform .15s ease; }
-        .toggle.on span{ transform:translateX(1.1rem); }
-        .skeleton{ background: linear-gradient(90deg,#EEF1F6 25%,#F6F8FA 37%,#EEF1F6 63%); background-size:400% 100%; animation: shimmer 1.4s ease infinite; border-radius:16px; }
-        @keyframes shimmer{ 0%{ background-position:100% 50%;} 100%{ background-position:0 50%;} }
-        .swipe-bg{ position:absolute; inset:0; border-radius:20px; display:flex; align-items:center; font-size:.75rem; font-weight:700; color:#fff; padding:0 1.25rem; }
-    </style>
+use Livewire\Volt\Component;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
-    {{-- ============================================================
-         Fallback sample data — replace with a real Livewire component
-         (e.g. App\Livewire\Notifications\Index) passing $notifications,
-         $summary as public properties, and hook a real broadcast
-         channel (Echo/Pusher/Reverb) for the "real-time" requirement.
-    ============================================================ --}}
-    @php
-        $notifications = $notifications ?? collect([
+new 
+#[Layout('layouts.app')]
+#[Title('Notifications')]
+class extends Component {
+    public function with(): array
+    {
+        $notifications = collect([
             (object)['id' => 1, 'category' => 'Budgets', 'icon' => '💰', 'title' => 'Contribution Received', 'description' => 'John has contributed ₦20,000 to Family Monthly Budget.', 'timestamp' => '2 minutes ago', 'date' => now()->toDateString(), 'day' => 'Today', 'status' => 'Unread', 'priority' => 'Medium', 'related_type' => 'Budget', 'related_name' => 'Family Monthly Budget', 'deep_link' => '/budgets'],
             (object)['id' => 2, 'category' => 'Groups', 'icon' => '👨‍👩‍👧', 'title' => 'New Member Joined', 'description' => 'Mary accepted your invitation and joined Family Group.', 'timestamp' => 'Today, 9:14 AM', 'date' => now()->toDateString(), 'day' => 'Today', 'status' => 'Read', 'priority' => 'Low', 'related_type' => 'Group', 'related_name' => 'Family', 'deep_link' => '/groups'],
             (object)['id' => 3, 'category' => 'Bills', 'icon' => '🧾', 'title' => 'Bill Overdue', 'description' => 'Your share of Electricity Bill is ₦15,000. Payment is now overdue.', 'timestamp' => 'Today, 7:40 AM', 'date' => now()->toDateString(), 'day' => 'Today', 'status' => 'Unread', 'priority' => 'High', 'related_type' => 'Bill', 'related_name' => 'Electricity Bill', 'deep_link' => '/bills'],
@@ -72,7 +44,7 @@
         $priorityTone = ['High' => 'bg-rose-50 text-rose-700', 'Medium' => 'bg-amber-50 text-amber-700', 'Low' => 'bg-blue-50 text-blue-700'];
         $priorityDot = ['High' => 'bg-rose-500', 'Medium' => 'bg-amber-500', 'Low' => 'bg-blue-500'];
 
-        $smartReminders = $smartReminders ?? [
+        $smartReminders = [
             "You haven't recorded any expenses this week.",
             "Your monthly savings hasn't been updated.",
             'Electricity Bill is due tomorrow.',
@@ -80,7 +52,47 @@
             'Family Monthly Budget reaches its end date in 5 days.',
             'Christmas Savings is 90% complete.',
         ];
-    @endphp
+
+        return compact(
+            'notifications', 'total', 'unread', 'todayCount', 'thisWeek',
+            'highPriority', 'archived', 'summaryCards', 'categories',
+            'priorityTone', 'priorityDot', 'smartReminders'
+        );
+    }
+}; ?>
+
+<div>
+    <x-slot name="header">
+        <div class="flex flex-wrap items-center justify-between gap-4" x-data="{}">
+            <div>
+                <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">Notifications</h2>
+                <p class="mt-0.5 text-sm text-slate-500">Stay updated with your budgets, expenses, groups and bills.</p>
+            </div>
+            <div class="hidden items-center gap-2 sm:flex">
+                <button type="button" @click="markAllRead()" class="rounded-full border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:border-slate-300">Mark All Read</button>
+                <button type="button" @click="$store.settingsDrawer.open = true" class="rounded-full bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 hover:bg-blue-700">Notification Settings</button>
+            </div>
+        </div>
+    </x-slot>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        .b-card{ background:#fff; border:1px solid #E5E9F0; border-radius:20px; box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 10px 28px -14px rgba(15,23,42,0.10); }
+        .badge{ display:inline-flex; align-items:center; border-radius:9999px; padding:.2rem .6rem; font-size:.7rem; font-weight:600; }
+        .status-dot{ height:.5rem; width:.5rem; border-radius:9999px; display:inline-block; }
+        .field-label{ font-size:.75rem; font-weight:600; color:#475569; }
+        .field-input{ margin-top:.375rem; width:100%; border-radius:.75rem; border:1px solid #E2E8F0; padding:.625rem .875rem; font-size:.875rem; }
+        .field-input:focus{ outline:none; border-color:#60A5FA; box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
+        .segbtn{ border-radius:.75rem; border:1px solid #E2E8F0; padding:.5rem .75rem; font-size:.75rem; font-weight:600; color:#64748B; }
+        .segbtn.active{ border-color:#2563EB; background:#EFF6FF; color:#1D4ED8; }
+        .toggle{ position:relative; width:2.5rem; height:1.4rem; border-radius:9999px; background:#E2E8F0; transition:background .15s ease; cursor:pointer; flex-shrink:0; }
+        .toggle.on{ background:#2563EB; }
+        .toggle span{ position:absolute; top:2px; left:2px; height:1.1rem; width:1.1rem; border-radius:9999px; background:#fff; transition:transform .15s ease; }
+        .toggle.on span{ transform:translateX(1.1rem); }
+        .skeleton{ background: linear-gradient(90deg,#EEF1F6 25%,#F6F8FA 37%,#EEF1F6 63%); background-size:400% 100%; animation: shimmer 1.4s ease infinite; border-radius:16px; }
+        @keyframes shimmer{ 0%{ background-position:100% 50%;} 100%{ background-position:0 50%;} }
+        .swipe-bg{ position:absolute; inset:0; border-radius:20px; display:flex; align-items:center; font-size:.75rem; font-weight:700; color:#fff; padding:0 1.25rem; }
+    </style>
 
     <div x-data="notificationsPage()" x-init="init()" x-cloak class="relative mx-auto max-w-7xl space-y-8 pb-24">
 
@@ -498,20 +510,16 @@
                 },
 
                 markRead(id) {
-                    // Replace with a real call, e.g. Livewire.dispatch('markNotificationRead', { id })
                     const el = this.$el.querySelector(`[data-name]:has(button[onclick*="${id}"])`);
                 },
 
                 markAllRead() {
-                    // Replace with a real call, e.g. Livewire.dispatch('markAllNotificationsRead')
                 },
 
                 archive(id) {
-                    // Replace with a real call, e.g. Livewire.dispatch('archiveNotification', { id })
                 },
 
                 deleteNotification(id, el) {
-                    // Replace with a real call, e.g. Livewire.dispatch('deleteNotification', { id })
                     if (el) el.remove();
                 },
             }));
@@ -540,10 +548,8 @@
                     clearTimeout(this.pressTimer);
                     this.touching = false;
                     if (this.swipeX > 80) {
-                        // swiped right — mark as read
                         this.swipeX = 0;
                     } else if (this.swipeX < -80) {
-                        // swiped left — archive
                         this.swipeX = 0;
                     } else {
                         this.swipeX = 0;
@@ -562,11 +568,10 @@
                 quietEnd: '07:00',
 
                 save() {
-                    // Replace with a real call, e.g. Livewire.dispatch('saveNotificationPreferences', { ...this })
                     this.saved = true;
                     setTimeout(() => this.saved = false, 1500);
                 },
             }));
         });
     </script>
-</x-app-layout>
+</div>

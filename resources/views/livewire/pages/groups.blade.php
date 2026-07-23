@@ -1,49 +1,15 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-4" x-data="{}">
-            <div>
-                <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">Groups</h2>
-                <p class="mt-0.5 text-sm text-slate-500">Manage your shared groups and collaborate with members.</p>
-            </div>
-            <button type="button" @click="$store.groupModal.mode = 'create'; $store.groupModal.data = null; $store.groupModal.open = true"
-                    class="hidden items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700 sm:inline-flex">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
-                Create Group
-            </button>
-        </div>
-    </x-slot>
+<?php
 
-    <style>
-        [x-cloak] { display: none !important; }
-        .b-card{ background:#fff; border:1px solid #E5E9F0; border-radius:20px; box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 10px 28px -14px rgba(15,23,42,0.10); }
-        .badge{ display:inline-flex; align-items:center; border-radius:9999px; padding:.2rem .6rem; font-size:.7rem; font-weight:600; }
-        .status-dot{ height:.5rem; width:.5rem; border-radius:9999px; display:inline-block; }
-        .avatar{ display:inline-flex; align-items:center; justify-content:center; height:1.8rem; width:1.8rem; border-radius:9999px; font-size:.65rem; font-weight:700; border:2px solid #fff; }
-        .field-label{ font-size:.75rem; font-weight:600; color:#475569; }
-        .field-input{ margin-top:.375rem; width:100%; border-radius:.75rem; border:1px solid #E2E8F0; padding:.625rem .875rem; font-size:.875rem; }
-        .field-input:focus{ outline:none; border-color:#60A5FA; box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
-        .segbtn{ border-radius:.75rem; border:1px solid #E2E8F0; padding:.5rem .75rem; font-size:.75rem; font-weight:600; color:#64748B; }
-        .segbtn.active{ border-color:#2563EB; background:#EFF6FF; color:#1D4ED8; }
-        .toggle{ position:relative; width:2.5rem; height:1.4rem; border-radius:9999px; background:#E2E8F0; transition:background .15s ease; cursor:pointer; }
-        .toggle.on{ background:#2563EB; }
-        .toggle span{ position:absolute; top:2px; left:2px; height:1.1rem; width:1.1rem; border-radius:9999px; background:#fff; transition:transform .15s ease; }
-        .toggle.on span{ transform:translateX(1.1rem); }
-        .skeleton{ background: linear-gradient(90deg,#EEF1F6 25%,#F6F8FA 37%,#EEF1F6 63%); background-size:400% 100%; animation: shimmer 1.4s ease infinite; border-radius:16px; }
-        @keyframes shimmer{ 0%{ background-position:100% 50%;} 100%{ background-position:0 50%;} }
-    </style>
+use Livewire\Volt\Component;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
-    {{-- ============================================================
-         Fallback sample data — replace with a real Livewire component
-         (e.g. App\Livewire\Groups\Index) passing $groups, $summary,
-         etc. as public properties.
-
-         Note: per the spec, "View" opens a dedicated Group Details
-         page. To keep this a single reusable component I built it as
-         a full-height slide-over drawer instead (same pattern as the
-         Bills detail drawer) — say the word if you'd rather have a
-         real /groups/{id} route + page instead.
-    ============================================================ --}}
-    @php
+new 
+#[Layout('layouts.app')]
+#[Title('Groups')]
+class extends Component {
+    public function with(): array
+    {
         $groupTypes = ['Family', 'Friends', 'Roommates', 'Church', 'Cooperative', 'Business', 'Event', 'Other'];
         $roleDescriptions = [
             'Owner' => 'Full control over the group, its members, and all its data.',
@@ -58,7 +24,7 @@
             'Viewer' => ['view_budgets' => true, 'add_expenses' => false, 'edit_bills' => false, 'delete_group' => false],
         ];
 
-        $groups = $groups ?? collect([
+        $groups = collect([
             (object)[
                 'id' => 1, 'name' => 'Family', 'icon' => '👨‍👩‍👧', 'description' => 'Monthly Household Expenses',
                 'type' => 'Family', 'privacy' => 'Private', 'status' => 'Active', 'created_at' => '2026-01-14',
@@ -143,7 +109,48 @@
 
         $roleBadge = ['Owner' => 'bg-blue-50 text-blue-700', 'Editor' => 'bg-purple-50 text-purple-700', 'Contributor' => 'bg-emerald-50 text-emerald-700', 'Viewer' => 'bg-slate-100 text-slate-600'];
         $avatarColors = ['bg-blue-500', 'bg-emerald-500', 'bg-orange-500', 'bg-purple-500', 'bg-rose-500', 'bg-teal-500'];
-    @endphp
+
+        return compact(
+            'groupTypes', 'roleDescriptions', 'rolePermissions', 'groups',
+            'totalGroups', 'totalMembers', 'activeGroups', 'pendingInvites',
+            'newMembersThisMonth', 'largestGroup', 'summaryCards', 'roleBadge', 'avatarColors'
+        );
+    }
+}; ?>
+
+<div>
+    <x-slot name="header">
+        <div class="flex flex-wrap items-center justify-between gap-4" x-data="{}">
+            <div>
+                <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">Groups</h2>
+                <p class="mt-0.5 text-sm text-slate-500">Manage your shared groups and collaborate with members.</p>
+            </div>
+            <button type="button" @click="$store.groupModal.mode = 'create'; $store.groupModal.data = null; $store.groupModal.open = true"
+                    class="hidden items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700 sm:inline-flex">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+                Create Group
+            </button>
+        </div>
+    </x-slot>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        .b-card{ background:#fff; border:1px solid #E5E9F0; border-radius:20px; box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 10px 28px -14px rgba(15,23,42,0.10); }
+        .badge{ display:inline-flex; align-items:center; border-radius:9999px; padding:.2rem .6rem; font-size:.7rem; font-weight:600; }
+        .status-dot{ height:.5rem; width:.5rem; border-radius:9999px; display:inline-block; }
+        .avatar{ display:inline-flex; align-items:center; justify-content:center; height:1.8rem; width:1.8rem; border-radius:9999px; font-size:.65rem; font-weight:700; border:2px solid #fff; }
+        .field-label{ font-size:.75rem; font-weight:600; color:#475569; }
+        .field-input{ margin-top:.375rem; width:100%; border-radius:.75rem; border:1px solid #E2E8F0; padding:.625rem .875rem; font-size:.875rem; }
+        .field-input:focus{ outline:none; border-color:#60A5FA; box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
+        .segbtn{ border-radius:.75rem; border:1px solid #E2E8F0; padding:.5rem .75rem; font-size:.75rem; font-weight:600; color:#64748B; }
+        .segbtn.active{ border-color:#2563EB; background:#EFF6FF; color:#1D4ED8; }
+        .toggle{ position:relative; width:2.5rem; height:1.4rem; border-radius:9999px; background:#E2E8F0; transition:background .15s ease; cursor:pointer; }
+        .toggle.on{ background:#2563EB; }
+        .toggle span{ position:absolute; top:2px; left:2px; height:1.1rem; width:1.1rem; border-radius:9999px; background:#fff; transition:transform .15s ease; }
+        .toggle.on span{ transform:translateX(1.1rem); }
+        .skeleton{ background: linear-gradient(90deg,#EEF1F6 25%,#F6F8FA 37%,#EEF1F6 63%); background-size:400% 100%; animation: shimmer 1.4s ease infinite; border-radius:16px; }
+        @keyframes shimmer{ 0%{ background-position:100% 50%;} 100%{ background-position:0 50%;} }
+    </style>
 
     <div x-data="groupsPage()" x-init="init()" x-cloak class="relative mx-auto max-w-7xl space-y-8 pb-20">
 
@@ -322,7 +329,7 @@
                         <div class="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3 text-sm" x-show="confirmDelete" x-cloak>
                             <span class="text-slate-600">Delete this group?</span>
                             <button type="button" @click="confirmDelete = false" class="ml-auto rounded-full px-3.5 py-1.5 text-xs font-semibold text-slate-500 hover:bg-slate-100">Cancel</button>
-                            <button type="button" @click="confirmDelete = false /* dispatch delete here */" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Yes, delete</button>
+                            <button type="button" @click="confirmDelete = false" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Yes, delete</button>
                         </div>
                     </div>
                 @endforeach
@@ -368,7 +375,7 @@
                                     <p class="mt-1 text-xs text-rose-600">Deleting this group will not delete existing budgets, expenses or bills. Those records remain in the system but will no longer be associated with this group unless reassigned.</p>
                                     <div class="mt-3 flex justify-end gap-2">
                                         <button @click="$store.groupDrawer.confirmDelete = false" class="rounded-full px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-white">Cancel</button>
-                                        <button @click="$store.groupDrawer.confirmDelete = false; $store.groupDrawer.open = false /* dispatch delete here */" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Delete Group</button>
+                                        <button @click="$store.groupDrawer.confirmDelete = false; $store.groupDrawer.open = false" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Delete Group</button>
                                     </div>
                                 </div>
                             </div>
@@ -448,7 +455,7 @@
                                     </div>
                                 </div>
 
-                                {{-- Budgets / Expenses / Bills quick counts (link out to their modules) --}}
+                                {{-- Budgets / Expenses / Bills quick counts --}}
                                 <div x-show="$store.groupDrawer.tab === 'budgets'" class="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
                                     <span x-text="$store.groupDrawer.group.stats.budgets"></span> budgets belong to this group. Manage them from the Budgets page.
                                 </div>
@@ -722,7 +729,7 @@
                             <p class="mt-1 text-xs text-rose-600">Deleting this group will not delete existing budgets, expenses or bills. Those records remain in the system but will no longer be associated with this group unless reassigned.</p>
                             <div class="mt-3 flex justify-end gap-2">
                                 <button type="button" @click="deleting = false" class="rounded-full px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-white">Cancel</button>
-                                <button type="button" @click="deleting = false; $store.groupModal.open = false /* dispatch delete here */" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Delete Group</button>
+                                <button type="button" @click="deleting = false; $store.groupModal.open = false" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Delete Group</button>
                             </div>
                         </div>
                     </form>
@@ -789,8 +796,6 @@
                     }
                     this.error = '';
                     this.submitting = true;
-                    // Replace with a real call, e.g.:
-                    // Livewire.dispatch($store.memberModal.mode === 'edit' ? 'updateMember' : 'addMember', { ...this.form })
                     setTimeout(() => { this.submitting = false; this.$store.memberModal.open = false; }, 500);
                 },
             }));
@@ -829,11 +834,9 @@
                     }
                     this.error = '';
                     this.submitting = true;
-                    // Replace with a real call, e.g.:
-                    // Livewire.dispatch($store.groupModal.mode === 'edit' ? 'updateGroup' : 'createGroup', { ...this.form })
                     setTimeout(() => { this.submitting = false; this.$store.groupModal.open = false; }, 600);
                 },
             }));
         });
     </script>
-</x-app-layout>
+</div>

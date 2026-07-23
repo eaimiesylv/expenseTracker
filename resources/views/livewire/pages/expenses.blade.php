@@ -1,41 +1,15 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-4" x-data="{}">
-            <div>
-                <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">Expenses</h2>
-                <p class="mt-0.5 text-sm text-slate-500">Track and manage all your personal and shared expenses.</p>
-            </div>
-            <button type="button" @click="$store.expenseModal.mode = 'create'; $store.expenseModal.data = null; $store.expenseModal.open = true"
-                    class="hidden items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700 sm:inline-flex">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
-                Add Expense
-            </button>
-        </div>
-    </x-slot>
+<?php
 
-    <style>
-        [x-cloak] { display: none !important; }
-        .b-card{ background:#fff; border:1px solid #E5E9F0; border-radius:20px; box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 10px 28px -14px rgba(15,23,42,0.10); }
-        .b-progress-track{ height:8px; border-radius:9999px; background:#EEF1F6; }
-        .b-progress-fill{ height:8px; border-radius:9999px; transition: width .4s ease; }
-        .badge{ display:inline-flex; align-items:center; border-radius:9999px; padding:.2rem .6rem; font-size:.7rem; font-weight:600; }
-        .status-dot{ height:.5rem; width:.5rem; border-radius:9999px; display:inline-block; }
-        .avatar{ display:inline-flex; align-items:center; justify-content:center; height:1.6rem; width:1.6rem; border-radius:9999px; font-size:.65rem; font-weight:700; border:2px solid #fff; }
-        .field-label{ font-size:.75rem; font-weight:600; color:#475569; }
-        .field-input{ margin-top:.375rem; width:100%; border-radius:.75rem; border:1px solid #E2E8F0; padding:.625rem .875rem; font-size:.875rem; }
-        .field-input:focus{ outline:none; border-color:#60A5FA; box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
-        .segbtn{ border-radius:.75rem; border:1px solid #E2E8F0; padding:.5rem .75rem; font-size:.75rem; font-weight:600; color:#64748B; }
-        .segbtn.active{ border-color:#2563EB; background:#EFF6FF; color:#1D4ED8; }
-        .skeleton{ background: linear-gradient(90deg,#EEF1F6 25%,#F6F8FA 37%,#EEF1F6 63%); background-size:400% 100%; animation: shimmer 1.4s ease infinite; border-radius:16px; }
-        @keyframes shimmer{ 0%{ background-position:100% 50%;} 100%{ background-position:0 50%;} }
-    </style>
+use Livewire\Volt\Component;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
-    {{-- ============================================================
-         Fallback sample data — replace with a real Livewire component
-         (e.g. App\Livewire\Expenses\Index) passing all these as
-         public properties, and swap Chart.js datasets for live ones.
-    ============================================================ --}}
-    @php
+new 
+#[Layout('layouts.app')]
+#[Title('Expenses')]
+class extends Component {
+    public function with(): array
+    {
         $groupsList = ['Family', 'Church cooperative', 'Office savings'];
         $budgetsList = [
             (object)['name' => 'Food', 'type' => 'Personal', 'remaining' => 15000, 'limit' => 60000, 'spent' => 45000],
@@ -45,7 +19,7 @@
         $categoriesList = ['Food', 'Rent', 'Transport', 'Shopping', 'Utilities', 'Others'];
         $membersList = ['Father', 'Mother', 'Mary', 'John', 'Peter'];
 
-        $expenses = $expenses ?? collect([
+        $expenses = collect([
             (object)[
                 'id' => 1, 'name' => 'Rice (bag)', 'amount' => 32000, 'category' => 'Food',
                 'type' => 'Personal', 'budget' => 'Food', 'group' => null,
@@ -126,14 +100,14 @@
             ['label' => 'Unbudgeted Expenses', 'value' => '₦' . number_format($unbudgetedTotal), 'trend' => '18 not linked', 'up' => false, 'icon' => 'alert'],
         ];
 
-        $attentionItems = $attentionItems ?? collect([
+        $attentionItems = collect([
             (object)['label' => 'Food Budget', 'meta' => '95% used', 'tone' => 'orange'],
             (object)['label' => '4 expenses missing receipts', 'meta' => 'Attach proof of payment', 'tone' => 'blue'],
             (object)['label' => '3 expenses waiting approval', 'meta' => 'Review pending items', 'tone' => 'blue'],
             (object)['label' => '2 group expenses need review', 'meta' => 'Confirm participants & split', 'tone' => 'red'],
         ]);
 
-        $insights = $insights ?? [
+        $insights = [
             'Food accounts for 38% of your expenses.',
             'You spent 10% less than last month.',
             'Most expenses belong to Family Budget.',
@@ -141,7 +115,7 @@
             '18 expenses are not linked to a budget.',
         ];
 
-        $timeline = $timeline ?? collect([
+        $timeline = collect([
             (object)['day' => 'Today', 'text' => 'Rice Purchased — ₦18,000'],
             (object)['day' => 'Yesterday', 'text' => 'Mary Added Expense'],
             (object)['day' => 'Monday', 'text' => 'John Edited Fuel Expense'],
@@ -160,7 +134,47 @@
             'Approved' => 'bg-emerald-50 text-emerald-700',
         ];
         $avatarColors = ['bg-blue-500', 'bg-emerald-500', 'bg-orange-500', 'bg-purple-500', 'bg-rose-500'];
-    @endphp
+
+        return compact(
+            'groupsList', 'budgetsList', 'categoriesList', 'membersList', 'expenses',
+            'totalExpenses', 'totalSpent', 'personalTotal', 'groupTotal', 'budgetedTotal',
+            'unbudgetedTotal', 'summaryCards', 'attentionItems', 'insights', 'timeline',
+            'toneClasses', 'badgeTone', 'avatarColors'
+        );
+    }
+}; ?>
+
+<div>
+    <x-slot name="header">
+        <div class="flex flex-wrap items-center justify-between gap-4" x-data="{}">
+            <div>
+                <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">Expenses</h2>
+                <p class="mt-0.5 text-sm text-slate-500">Track and manage all your personal and shared expenses.</p>
+            </div>
+            <button type="button" @click="$store.expenseModal.mode = 'create'; $store.expenseModal.data = null; $store.expenseModal.open = true"
+                    class="hidden items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700 sm:inline-flex">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+                Add Expense
+            </button>
+        </div>
+    </x-slot>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        .b-card{ background:#fff; border:1px solid #E5E9F0; border-radius:20px; box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 10px 28px -14px rgba(15,23,42,0.10); }
+        .b-progress-track{ height:8px; border-radius:9999px; background:#EEF1F6; }
+        .b-progress-fill{ height:8px; border-radius:9999px; transition: width .4s ease; }
+        .badge{ display:inline-flex; align-items:center; border-radius:9999px; padding:.2rem .6rem; font-size:.7rem; font-weight:600; }
+        .status-dot{ height:.5rem; width:.5rem; border-radius:9999px; display:inline-block; }
+        .avatar{ display:inline-flex; align-items:center; justify-content:center; height:1.6rem; width:1.6rem; border-radius:9999px; font-size:.65rem; font-weight:700; border:2px solid #fff; }
+        .field-label{ font-size:.75rem; font-weight:600; color:#475569; }
+        .field-input{ margin-top:.375rem; width:100%; border-radius:.75rem; border:1px solid #E2E8F0; padding:.625rem .875rem; font-size:.875rem; }
+        .field-input:focus{ outline:none; border-color:#60A5FA; box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
+        .segbtn{ border-radius:.75rem; border:1px solid #E2E8F0; padding:.5rem .75rem; font-size:.75rem; font-weight:600; color:#64748B; }
+        .segbtn.active{ border-color:#2563EB; background:#EFF6FF; color:#1D4ED8; }
+        .skeleton{ background: linear-gradient(90deg,#EEF1F6 25%,#F6F8FA 37%,#EEF1F6 63%); background-size:400% 100%; animation: shimmer 1.4s ease infinite; border-radius:16px; }
+        @keyframes shimmer{ 0%{ background-position:100% 50%;} 100%{ background-position:0 50%;} }
+    </style>
 
     <div x-data="expensesPage()" x-init="init()" x-cloak class="relative mx-auto max-w-7xl space-y-8 pb-20">
 
@@ -417,7 +431,7 @@
                             <div class="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3 text-sm" x-show="confirmDelete" x-cloak>
                                 <span class="text-slate-600">Delete this expense?</span>
                                 <button type="button" @click="confirmDelete = false" class="ml-auto rounded-full px-3.5 py-1.5 text-xs font-semibold text-slate-500 hover:bg-slate-100">Cancel</button>
-                                <button type="button" @click="confirmDelete = false /* dispatch delete here */" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Yes, delete</button>
+                                <button type="button" @click="confirmDelete = false" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Yes, delete</button>
                             </div>
 
                             {{-- Expandable detail panel --}}
@@ -637,7 +651,7 @@
                             </div>
                         </section>
 
-                        {{-- Section 4: Split (group only) --}}
+                        {{-- Section 4: Split --}}
                         <section x-show="isGroupExpense">
                             <h4 class="text-xs font-bold uppercase tracking-wide text-blue-600">Split Expense (Optional)</h4>
                             <label class="mt-3 flex items-center gap-2 text-sm text-slate-700">
@@ -706,7 +720,7 @@
                         <div x-show="deleting" x-cloak x-transition class="flex items-center justify-end gap-3 rounded-xl bg-rose-50 p-3.5 text-sm">
                             <span class="text-rose-700">Delete this expense permanently?</span>
                             <button type="button" @click="deleting = false" class="rounded-full px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-white">Cancel</button>
-                            <button type="button" @click="deleting = false; $store.expenseModal.open = false /* dispatch delete here */" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Yes, delete</button>
+                            <button type="button" @click="deleting = false; $store.expenseModal.open = false" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Yes, delete</button>
                         </div>
                     </form>
                 </div>
@@ -822,8 +836,6 @@
                     this.error = '';
                     this.submitting = true;
 
-                    // Replace with a real call, e.g.:
-                    // Livewire.dispatch($store.expenseModal.mode === 'edit' ? 'updateExpense' : 'createExpense', { ...this.form, draft })
                     setTimeout(() => {
                         this.submitting = false;
                         this.$store.expenseModal.open = false;
@@ -832,4 +844,4 @@
             }));
         });
     </script>
-</x-app-layout>
+</div>

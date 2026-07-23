@@ -1,47 +1,16 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-4" x-data="{}">
-            <div>
-                <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">Savings</h2>
-                <p class="mt-0.5 text-sm text-slate-500">Track your savings goals and monitor your progress.</p>
-            </div>
-            <div class="hidden items-center gap-2 sm:flex">
-                <button type="button" @click="$store.recordModal.data = null; $store.recordModal.open = true"
-                        class="rounded-full border border-blue-200 bg-blue-50 px-5 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100">
-                    + Record Savings
-                </button>
-                <button type="button" @click="$store.planModal.mode = 'create'; $store.planModal.data = null; $store.planModal.open = true"
-                        class="inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
-                    Create Savings Plan
-                </button>
-            </div>
-        </div>
-    </x-slot>
+<?php
 
-    <style>
-        [x-cloak] { display: none !important; }
-        .b-card{ background:#fff; border:1px solid #E5E9F0; border-radius:20px; box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 10px 28px -14px rgba(15,23,42,0.10); }
-        .b-progress-track{ height:8px; border-radius:9999px; background:#EEF1F6; }
-        .b-progress-fill{ height:8px; border-radius:9999px; transition: width .4s ease; }
-        .badge{ display:inline-flex; align-items:center; border-radius:9999px; padding:.2rem .6rem; font-size:.7rem; font-weight:600; }
-        .status-dot{ height:.5rem; width:.5rem; border-radius:9999px; display:inline-block; }
-        .field-label{ font-size:.75rem; font-weight:600; color:#475569; }
-        .field-input{ margin-top:.375rem; width:100%; border-radius:.75rem; border:1px solid #E2E8F0; padding:.625rem .875rem; font-size:.875rem; }
-        .field-input:focus{ outline:none; border-color:#60A5FA; box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
-        .segbtn{ border-radius:.75rem; border:1px solid #E2E8F0; padding:.5rem .75rem; font-size:.75rem; font-weight:600; color:#64748B; }
-        .segbtn.active{ border-color:#2563EB; background:#EFF6FF; color:#1D4ED8; }
-        .skeleton{ background: linear-gradient(90deg,#EEF1F6 25%,#F6F8FA 37%,#EEF1F6 63%); background-size:400% 100%; animation: shimmer 1.4s ease infinite; border-radius:16px; }
-        @keyframes shimmer{ 0%{ background-position:100% 50%;} 100%{ background-position:0 50%;} }
-    </style>
+use Livewire\Volt\Component;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
-    {{-- ============================================================
-         Fallback sample data — replace with a real Livewire component
-         (e.g. App\Livewire\Savings\Index) passing $plans, $summary,
-         $attentionItems, $insights as public properties.
-    ============================================================ --}}
-    @php
-        $plans = $plans ?? collect([
+new 
+#[Layout('layouts.app')]
+#[Title('Savings')]
+class extends Component {
+    public function with(): array
+    {
+        $plans = collect([
             (object)[
                 'id' => 1, 'name' => 'Emergency Fund', 'description' => 'For unexpected expenses',
                 'target' => 500000, 'current' => 320000, 'has_duration' => true,
@@ -111,13 +80,13 @@
             ['label' => 'Average Monthly Savings', 'value' => '₦' . number_format($avgMonthlySavings), 'trend' => 'Per plan', 'up' => null, 'icon' => 'gauge'],
         ];
 
-        $attentionItems = $attentionItems ?? collect([
+        $attentionItems = collect([
             (object)['label' => 'Vacation Fund', 'meta' => 'No deposit for 45 days', 'tone' => 'red'],
             (object)['label' => 'Emergency Fund', 'meta' => 'Target date approaching', 'tone' => 'amber'],
             (object)['label' => 'Car Fund', 'meta' => '90% complete', 'tone' => 'blue'],
         ]);
 
-        $insights = $insights ?? [
+        $insights = [
             'You have saved ₦80,000 this month.',
             'Average monthly savings increased by 12%.',
             'Emergency Fund is 64% complete.',
@@ -127,7 +96,51 @@
 
         $toneDot = ['blue' => 'bg-blue-500', 'amber' => 'bg-amber-500', 'red' => 'bg-rose-500', 'green' => 'bg-emerald-500'];
         $statusBadge = ['Active' => 'bg-blue-50 text-blue-700', 'Completed' => 'bg-emerald-50 text-emerald-700', 'Archived' => 'bg-slate-100 text-slate-500'];
-    @endphp
+
+        return compact(
+            'plans', 'totalSavings', 'activePlans', 'completedPlans', 'allRecords',
+            'thisMonthSavings', 'totalDeposits', 'avgMonthlySavings', 'summaryCards',
+            'attentionItems', 'insights', 'toneDot', 'statusBadge'
+        );
+    }
+}; ?>
+
+<div>
+    <x-slot name="header">
+        <div class="flex flex-wrap items-center justify-between gap-4" x-data="{}">
+            <div>
+                <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">Savings</h2>
+                <p class="mt-0.5 text-sm text-slate-500">Track your savings goals and monitor your progress.</p>
+            </div>
+            <div class="hidden items-center gap-2 sm:flex">
+                <button type="button" @click="$store.recordModal.data = null; $store.recordModal.open = true"
+                        class="rounded-full border border-blue-200 bg-blue-50 px-5 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100">
+                    + Record Savings
+                </button>
+                <button type="button" @click="$store.planModal.mode = 'create'; $store.planModal.data = null; $store.planModal.open = true"
+                        class="inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+                    Create Savings Plan
+                </button>
+            </div>
+        </div>
+    </x-slot>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        .b-card{ background:#fff; border:1px solid #E5E9F0; border-radius:20px; box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 10px 28px -14px rgba(15,23,42,0.10); }
+        .b-progress-track{ height:8px; border-radius:9999px; background:#EEF1F6; }
+        .b-progress-fill{ height:8px; border-radius:9999px; transition: width .4s ease; }
+        .badge{ display:inline-flex; align-items:center; border-radius:9999px; padding:.2rem .6rem; font-size:.7rem; font-weight:600; }
+        .status-dot{ height:.5rem; width:.5rem; border-radius:9999px; display:inline-block; }
+        .field-label{ font-size:.75rem; font-weight:600; color:#475569; }
+        .field-input{ margin-top:.375rem; width:100%; border-radius:.75rem; border:1px solid #E2E8F0; padding:.625rem .875rem; font-size:.875rem; }
+        .field-input:focus{ outline:none; border-color:#60A5FA; box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
+        .segbtn{ border-radius:.75rem; border:1px solid #E2E8F0; padding:.5rem .75rem; font-size:.75rem; font-weight:600; color:#64748B; }
+        .segbtn.active{ border-color:#2563EB; background:#EFF6FF; color:#1D4ED8; }
+        .skeleton{ background: linear-gradient(90deg,#EEF1F6 25%,#F6F8FA 37%,#EEF1F6 63%); background-size:400% 100%; animation: shimmer 1.4s ease infinite; border-radius:16px; }
+        @keyframes shimmer{ 0%{ background-position:100% 50%;} 100%{ background-position:0 50%;} }
+    </style>
 
     <div x-data="savingsPage()" x-init="init()" x-cloak class="relative mx-auto max-w-7xl space-y-8 pb-24">
 
@@ -339,7 +352,7 @@
                             <div class="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3 text-sm" x-show="confirmDelete" x-cloak>
                                 <span class="text-slate-600">Delete this plan?</span>
                                 <button type="button" @click="confirmDelete = false" class="ml-auto rounded-full px-3.5 py-1.5 text-xs font-semibold text-slate-500 hover:bg-slate-100">Cancel</button>
-                                <button type="button" @click="confirmDelete = false /* dispatch delete here */" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Yes, delete</button>
+                                <button type="button" @click="confirmDelete = false" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Yes, delete</button>
                             </div>
                         </div>
                     @endforeach
@@ -426,7 +439,7 @@
                                     <p class="mt-1 text-xs text-rose-600">All savings records under this plan will be removed from this view.</p>
                                     <div class="mt-3 flex justify-end gap-2">
                                         <button @click="$store.planDrawer.confirmDelete = false" class="rounded-full px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-white">Cancel</button>
-                                        <button @click="$store.planDrawer.confirmDelete = false; $store.planDrawer.open = false /* dispatch delete here */" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Delete Plan</button>
+                                        <button @click="$store.planDrawer.confirmDelete = false; $store.planDrawer.open = false" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Delete Plan</button>
                                     </div>
                                 </div>
                             </div>
@@ -563,7 +576,7 @@
             </div>
         </template>
 
-        {{-- ============ Quick Add Plan modal (small) ============ --}}
+        {{-- ============ Quick Add Plan modal ============ --}}
         <template x-teleport="body">
             <div x-show="$store.quickAddModal.open" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4" @keydown.escape.window="$store.quickAddModal.open = false">
                 <div x-show="$store.quickAddModal.open" x-transition.opacity class="absolute inset-0 bg-slate-900/50" @click="$store.quickAddModal.open = false"></div>
@@ -699,7 +712,7 @@
                         <div x-show="deleting" x-cloak x-transition class="flex items-center justify-end gap-3 rounded-xl bg-rose-50 p-3.5 text-sm">
                             <span class="text-rose-700">Delete this plan permanently?</span>
                             <button type="button" @click="deleting = false" class="rounded-full px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-white">Cancel</button>
-                            <button type="button" @click="deleting = false; $store.planModal.open = false /* dispatch delete here */" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Yes, delete</button>
+                            <button type="button" @click="deleting = false; $store.planModal.open = false" class="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-rose-700">Yes, delete</button>
                         </div>
                     </form>
                 </div>
@@ -707,7 +720,6 @@
         </template>
     </div>
 
-    {{-- Chart.js via CDN for quick use — for production, `npm i chart.js` and import through resources/js/app.js instead --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script>
         document.addEventListener('alpine:init', () => {
@@ -794,8 +806,6 @@
                     }
                     this.error = '';
                     this.submitting = true;
-                    // Replace with a real call, e.g.:
-                    // Livewire.dispatch(form.id ? 'updateSavingsRecord' : 'recordSavings', { ...this.form })
                     setTimeout(() => { this.submitting = false; this.$store.recordModal.open = false; }, 500);
                 },
             }));
@@ -829,11 +839,9 @@
                     }
                     this.error = '';
                     this.submitting = true;
-                    // Replace with a real call, e.g.:
-                    // Livewire.dispatch($store.planModal.mode === 'edit' ? 'updateSavingsPlan' : 'createSavingsPlan', { ...this.form })
                     setTimeout(() => { this.submitting = false; this.$store.planModal.open = false; }, 600);
                 },
             }));
         });
     </script>
-</x-app-layout>
+</div>

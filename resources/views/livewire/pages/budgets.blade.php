@@ -1,39 +1,16 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-4" x-data="{}">
-            <div>
-                <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">Budgets</h2>
-                <p class="mt-0.5 text-sm text-slate-500">Plan, manage and monitor your personal and shared budgets.</p>
-            </div>
-            <button type="button" @click="$store.createBudget.open = true"
-                    class="inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
-                Create Budget
-            </button>
-        </div>
-    </x-slot>
+<?php
 
-    <style>
-        [x-cloak] { display: none !important; }
-        .b-card{
-            background:#fff;
-            border:1px solid #E5E9F0;
-            border-radius:20px;
-            box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 10px 28px -14px rgba(15,23,42,0.10);
-        }
-        .b-progress-track{ height:10px; border-radius:9999px; background:#EEF1F6; }
-        .b-progress-fill{ height:10px; border-radius:9999px; transition: width .4s ease; }
-        .badge{ display:inline-flex; align-items:center; border-radius:9999px; padding:.2rem .65rem; font-size:.7rem; font-weight:600; }
-        .status-dot{ height:.5rem; width:.5rem; border-radius:9999px; display:inline-block; }
-    </style>
+use Livewire\Volt\Component;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
-    {{-- ============================================================
-         Fallback sample data — replace with a real Livewire component
-         (e.g. App\Livewire\Budgets\Index) passing $budgets, $summary,
-         $attentionItems, $insights, $timeline as public properties.
-    ============================================================ --}}
-    @php
-        $budgets = $budgets ?? collect([
+new 
+#[Layout('layouts.app')]
+#[Title('Budgets')]
+class extends Component {
+    public function with(): array
+    {
+        $budgets = collect([
             (object)[
                 'id' => 1, 'name' => 'Family Monthly Budget', 'type' => 'Group',
                 'recurrence' => 'Recurring', 'frequency' => 'Monthly', 'status' => 'Active',
@@ -125,7 +102,7 @@
             ['label' => 'Over Budget', 'value' => $overBudgets->count(), 'trend' => 'Needs review', 'up' => null, 'icon' => 'alert-circle', 'tone' => 'red'],
         ];
 
-        $attentionItems = $attentionItems ?? collect([
+        $attentionItems = collect([
             (object)['label' => 'Family Budget', 'meta' => '95% used', 'tone' => 'orange'],
             (object)['label' => 'Church Budget', 'meta' => '2 members have not contributed', 'tone' => 'blue'],
             (object)['label' => 'July Budget', 'meta' => 'Ends tomorrow', 'tone' => 'blue'],
@@ -133,7 +110,7 @@
             (object)['label' => '4 expense requests', 'meta' => 'Awaiting approval', 'tone' => 'blue'],
         ]);
 
-        $insights = $insights ?? [
+        $insights = [
             'Food represents 38% of your monthly budget.',
             'You have spent 12% less than last month.',
             'Three budgets will renew next week.',
@@ -142,7 +119,7 @@
             'Transport spending has increased by 15%.',
         ];
 
-        $timeline = $timeline ?? collect([
+        $timeline = collect([
             (object)['day' => 'Today', 'text' => 'Mary contributed ₦20,000'],
             (object)['day' => 'Yesterday', 'text' => 'Father approved School Fees request'],
             (object)['day' => 'Yesterday', 'text' => 'Added Electricity Expense'],
@@ -171,7 +148,44 @@
             'Medium' => 'bg-orange-50 text-orange-700',
             'Low' => 'bg-slate-100 text-slate-600',
         ];
-    @endphp
+
+        return compact(
+            'budgets', 'activeBudgets', 'totalBudgetAmount', 'totalSpent', 'remainingBudget',
+            'groupBudgets', 'recurringBudgets', 'nearLimitBudgets', 'overBudgets',
+            'summaryCards', 'attentionItems', 'insights', 'timeline',
+            'toneClasses', 'statusBadge', 'priorityBadge'
+        );
+    }
+}; ?>
+
+<div>
+    <x-slot name="header">
+        <div class="flex flex-wrap items-center justify-between gap-4" x-data="{}">
+            <div>
+                <h2 class="font-display text-xl font-semibold leading-tight text-slate-900">Budgets</h2>
+                <p class="mt-0.5 text-sm text-slate-500">Plan, manage and monitor your personal and shared budgets.</p>
+            </div>
+            <button type="button" @click="$store.createBudget.open = true"
+                    class="inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+                Create Budget
+            </button>
+        </div>
+    </x-slot>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        .b-card{
+            background:#fff;
+            border:1px solid #E5E9F0;
+            border-radius:20px;
+            box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 10px 28px -14px rgba(15,23,42,0.10);
+        }
+        .b-progress-track{ height:10px; border-radius:9999px; background:#EEF1F6; }
+        .b-progress-fill{ height:10px; border-radius:9999px; transition: width .4s ease; }
+        .badge{ display:inline-flex; align-items:center; border-radius:9999px; padding:.2rem .65rem; font-size:.7rem; font-weight:600; }
+        .status-dot{ height:.5rem; width:.5rem; border-radius:9999px; display:inline-block; }
+    </style>
 
     <div x-data="budgetsPage()" x-cloak class="mx-auto max-w-7xl space-y-8">
 
@@ -383,7 +397,7 @@
                                             </div>
                                         @endif
 
-                                        {{-- Budget Planning / Expense Requests (Group budgets only) --}}
+                                        {{-- Budget Planning / Expense Requests --}}
                                         @if ($budget->type === 'Group' && !empty($budget->requests))
                                             @php
                                                 $reqCollection = collect($budget->requests);
@@ -430,7 +444,7 @@
                     <p x-show="noResults()" x-cloak class="b-card p-8 text-center text-sm text-slate-500">No budgets match your search or filters.</p>
                 </div>
 
-                {{-- Side panels: Needs Attention, Insights, Timeline --}}
+                {{-- Side panels --}}
                 <div class="space-y-6">
                     <div class="b-card p-5">
                         <h3 class="font-display text-sm font-semibold text-slate-900">Needs Attention</h3>
@@ -508,7 +522,6 @@
                         </button>
                     </div>
 
-                    {{-- Swap action="" / method for a real route, or use wire:submit on a Livewire component --}}
                     <form class="mt-6 space-y-5" @submit.prevent="submit()">
 
                         <div>
@@ -619,9 +632,6 @@
                     this.error = '';
                     this.submitting = true;
 
-                    // Replace with a real request, e.g.:
-                    // Livewire.dispatch('createBudget', { ...this.form })
-                    // or fetch('/budgets', { method: 'POST', body: JSON.stringify(this.form), ... })
                     setTimeout(() => {
                         this.submitting = false;
                         this.$store.createBudget.open = false;
@@ -680,7 +690,7 @@
                             case 'amount_asc': return a.dataset.amount - b.dataset.amount;
                             case 'progress_desc': return b.dataset.progress - a.dataset.progress;
                             case 'progress_asc': return a.dataset.progress - b.dataset.progress;
-                            default: return new Date(b.dataset.start) - new Date(a.dataset.start); // newest
+                            default: return new Date(b.dataset.start) - new Date(a.dataset.start);
                         }
                     });
 
@@ -689,4 +699,4 @@
             }));
         });
     </script>
-</x-app-layout>
+</div>
